@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: auth-server:v1
+        imagePullPolicy: IfNotPresent  # 인터넷에서 찾지 말고 방금 로드한 이미지를 쓰라는 핵심 설정!
+        ports:
+        - containerPort: 5678
