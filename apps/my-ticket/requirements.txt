@@ -1,0 +1,15 @@
+# FastAPI 뼈대와 서버
+fastapi
+uvicorn[standard]
+
+# PostgreSQL DB 연결용
+sqlalchemy
+psycopg2-binary
+
+# Redis 연결용
+redis
+
+# 비밀번호 암호화 및 JWT 토큰(세션) 발급용
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart

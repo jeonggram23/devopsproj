@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ticket-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: ticket
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticket-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticket
+  template:
+    metadata:
+      labels:
+        app: ticket
+    spec:
+      containers:
+      - name: ticket
+        image: hashicorp/http-echo
+        args:
+        - "-listen=:5678"
+        - "-text=Welcome to the Ticket Page! (You passed the waiting room)"
+        ports:
+        - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 5678
+  selector:
+    app: auth
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: hashicorp/http-echo
+        args:
+        - "-listen=:5678"
+        - "-text=OK"
+        ports:
+        - containerPort: 5678
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ticket-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/auth-url: "http://auth-service.default.svc.cluster.local"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /ticket
+        pathType: Prefix
+        backend:
+          service:
+            name: ticket-service
+            port:
+              number: 80
